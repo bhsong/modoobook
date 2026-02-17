@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS managementItems (
     itemId INT AUTO_INCREMENT PRIMARY KEY,
     userId INT NOT NULL,
-    item_name VARCHAR(50) NOT NULL, -- '거래처', '계좌번호', '티커'
+    itemName VARCHAR(50) NOT NULL, -- '거래처', '계좌번호', '티커'
     FOREIGN KEY (userId) REFERENCES users(userId)
 );
 
@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS accountItemMap (
 -- 거래 마스터 (누가, 언제, 무엇을)
 CREATE TABLE IF NOT EXISTS transactions (
     transactionId INT AUTO_INCREMENT PRIMARY KEY,
+    transactionNumber CHAR(14) NOT NULL UNIQUE, 
     userId INT NOT NULL,
     transactionDate DATE NOT NULL,
     description VARCHAR(255), -- 적요
