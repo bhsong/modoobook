@@ -36,9 +36,12 @@ class UserController {
     }
 
     public function register() {
-        if (!empty($_POST['userName'])) {
-            $stmt = $this->pdo->prepare("INSERT INTO users (userName) VALUES (?)");
-            $stmt->execute([$_POST['userName']]);
+        $user_name = $_POST['userName'];
+        if (!empty($user_name)) {
+            $stmt = $this->db->query(
+                'INSERT INTO users (userName) VALUES (?)',
+                [$user_name]
+            );
         }
         // 등록 후 다시 로그인 화면으로
         header("Location: /index.php");

@@ -1,7 +1,7 @@
 -- 사용자 테이블
 CREATE TABLE IF NOT EXISTS users (
     userId INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
+    userName VARCHAR(50) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS accountItemMap (
     itemId INT NOT NULL,
     PRIMARY KEY (accountId, itemId),
     FOREIGN KEY (accountId) REFERENCES accounts(accountId),
-    FOREIGN KEY (itemId) REFERENCES management_items(itemId)
+    FOREIGN KEY (itemId) REFERENCES managementItems(itemId)
 );
 
 -- 거래 마스터 (누가, 언제, 무엇을)

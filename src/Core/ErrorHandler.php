@@ -10,7 +10,14 @@ class ErrorHandler {
         $isDev = ($_ENV['APP_ENV'] ?? 'production') === 'dev';
 
         // 로그 파일에 기록
-        $logPath = __DIR__ . '/../../logs/app.log';
+        $logDir = __DIR__ . '/../../logs';
+        $logPath = $logDir . '/app.log';
+
+        if (!is_dir($logDir)) {
+            // 폴더가 없으면 생성 (권한 0777, 하위 폴더까지 싹 다)
+            mkdir($logDir, 0777, true);
+        }
+
         $logMessage = sprintf(
             "[%s] %s in %s on line %d\n",
             date('Y-m-d H:i:s'),

@@ -5,7 +5,7 @@
     <h1>복식부기 가계부</h1>
     <h2>1. 사용자 선택</h2>
 
-    <form method="POST">
+    <form method="POST" action="/index.php?action=register_user">
         <input type="hidden" name="action" value="register_user">
         <input type="text" name="userName" placeholder="사용자 이름" required>
         <button type="submit" name="add_user">등록</button>
