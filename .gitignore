@@ -1,0 +1,14 @@
+# 패키지 파일
+vendor/
+
+# 환경변수 및 비밀번호
+.env
+config/config.php
+
+# 로그 파일
+logs/app.log
+
+# OS 및 에디터 자동 생성 파일
+.DS_Store
+Thumbs.db
+.vscode/
