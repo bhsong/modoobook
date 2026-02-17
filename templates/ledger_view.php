@@ -1,5 +1,5 @@
 <style>
-    .search-box { background: #f1f3f5; padding: 20px; border-radius: 8px, margin-bottom: 20px; }
+    .search-box { background: #f1f3f5; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
     .ledger-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     .ledger-table th, .ledger-table td { border: 1px solid #dee2e6; padding: 12px; text-align: center; }
     .amt { text-align: right; font-family: 'Consolas', monospace; }
@@ -31,7 +31,7 @@
 </div>
 
 <?php if (isset($error_message)): ?>
-    <p style="color:red; font-weight:bold;">ERROR: <?= htmlspecialcahrs($error_message) ?></p>
+    <p style="color:red; font-weight:bold;">ERROR: <?= htmlspecialchars($error_message) ?></p>
 <?php endif; ?>
 
 <?php if ($isSearch && !empty($ledger_data)): ?>
@@ -64,7 +64,7 @@
             ?>
             <tr>
                 <td><?= htmlspecialchars($row['transactionDate']) ?></td>
-                <td style="text-align: left:">
+                <td style="text-align: left;">
                     <small style="color: blue;"><?= htmlspecialchars($row['transactionNumber']) ?></small><br>
                     <?= htmlspecialchars($row['description']) ?>
                     <?php if($row['itemName']): ?>

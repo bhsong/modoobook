@@ -12,3 +12,5 @@ logs/app.log
 .DS_Store
 Thumbs.db
 .vscode/
+
+*.md
