@@ -55,7 +55,7 @@ class AccountSetupController {
         // GET 요청 (화면에 뿌려줄 리스트 준비)
         // 각각의 리포지토리에서 목록 가져옴 (재사용성)
         $account = $this->accRepo->getAccountById($account_id);
-        $all_items = $this->mgmtRepo->getItems($user_id);           // 전체 항목 (체크박스 목록)
+        $all_items = $this->mgmtRepo->getAllItems($user_id);           // 전체 항목 (체크박스 목록)
         $checked_ids = $this->accRepo->getMappedItemIds($account_id);   // 이미 체크된 항목들
 
         // 뷰 호출

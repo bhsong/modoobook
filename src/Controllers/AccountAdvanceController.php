@@ -46,8 +46,8 @@ class AccountAdvanceController {
 
         // GET 요청 (화면에 뿌려줄 리스트 준비)
         // 각각의 리포지토리에서 목록 가져옴 (재사용성)
-        $account_list = $this->accRepo->getAccounts($user_id);
-        $item_list = $this->mgmtRepo->getItems($user_id);
+        $account_list = $this->accRepo->getLeafAccounts($user_id);
+        $item_list = $this->mgmtRepo->getAllItems($user_id);
 
         // 뷰 호출
         View::render('accounts_advance_view', [

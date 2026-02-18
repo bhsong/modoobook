@@ -30,7 +30,7 @@ class LedgerController {
         $user_id = $_SESSION['userId'];
 
         // 계정 목록 가져오기 
-        $account_list = $this->accRepo->getAccounts($user_id);
+        $account_list = $this->accRepo->getAllAccounts($user_id);
 
         // 조회 조건
         $acc_id = $_GET['account_id'] ?? '';

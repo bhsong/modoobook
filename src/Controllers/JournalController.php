@@ -29,8 +29,8 @@ class JournalController {
 
         $user_id = $_SESSION['userId'];
 
-        // 계정 목록 (AccountRepository 재사용)
-        $accounts = $this->accRepo->getAccounts($user_id);
+        // 전표 입력용 계정 목록 (level=3 소분류만, optgroup용 parentName 포함)
+        $accounts = $this->accRepo->getLeafAccounts($user_id);
 
         // 매핑 정보 (JournalRepository 사용)
         $account_map = $this->journalRepo->getAccountItemMap($user_id);
