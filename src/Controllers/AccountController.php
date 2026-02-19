@@ -5,18 +5,30 @@ namespace App\Controllers;
 use App\Core\View;
 use App\Core\Database;
 use App\Database\AccountRepository;
+use App\Services\AuditLogger;
+use App\Services\AccountService;
 use Exception;
 
-class AccountController {
+class AccountController
+{
     private $db;
     private $repo;
+    private $accountService;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->db   = $db;
+        $audit_logger = new AuditLogger($db);
+
+        // GET 조회용 (단순 조회는 Service 불필요)
         $this->repo = new AccountRepository($db);
+
+        // POST 처리용
+        $this->accountService = new AccountService($db, $audit_logger);
     }
 
-    public function index() {
+    public function index()
+    {
         if (!isset($_SESSION['userId'])) {
             header("Location: /index.php?action=login");
             exit;
@@ -25,55 +37,38 @@ class AccountController {
         $user_id = $_SESSION['userId'];
 
         // ----------------------------------------------------------
-        // POST: 계정 추가
+        // POST: 계정 추가 → AccountService 위임
         // ----------------------------------------------------------
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_account'])) {
-            $name            = trim($_POST['accountName'] ?? '');
-            $parentAccountId = (int)($_POST['parentAccountId'] ?? 0);
+            $result = $this->accountService->createAccount($_POST, $user_id);
 
-            if (empty($name) || $parentAccountId <= 0) {
-                header("Location: /index.php?action=accounts&error=" . urlencode("계정명과 상위 계정을 입력하세요."));
+            if (!$result['success']) {
+                header("Location: /index.php?action=accounts&error=" . urlencode($result['error']));
                 exit;
             }
-
-            // 상위 계정에서 accountType, level 자동 결정
-            $parentAccount = $this->repo->getAccountById($parentAccountId);
-            if (!$parentAccount) {
-                header("Location: /index.php?action=accounts&error=" . urlencode("유효하지 않은 상위 계정입니다."));
-                exit;
-            }
-
-            // 사용자는 중분류(level 2) 하위로만 추가 가능 → level 3 계정 생성
-            if ((int)$parentAccount['accountLevel'] !== 2) {
-                header("Location: /index.php?action=accounts&error=" . urlencode("중분류(2단계) 계정을 상위 계정으로 선택해야 합니다."));
-                exit;
-            }
-
-            $type     = $parentAccount['accountType'];
-            $newLevel = 3;
-            $this->repo->createAccount($user_id, $name, $type, $newLevel, $parentAccountId);
 
             header("Location: /index.php?action=accounts");
             exit;
         }
 
         // ----------------------------------------------------------
-        // POST: 계정 삭제
+        // POST: 계정 삭제 → AccountService 위임
         // ----------------------------------------------------------
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) {
-            $accountId = (int)($_POST['accountId'] ?? 0);
-            try {
-                $this->repo->deleteAccount($accountId);
-            } catch (Exception $e) {
-                header("Location: /index.php?action=accounts&error=" . urlencode($e->getMessage()));
+            $account_id = (int)($_POST['accountId'] ?? 0);
+            $result     = $this->accountService->deleteAccount($account_id, $user_id);
+
+            if (!$result['success']) {
+                header("Location: /index.php?action=accounts&error=" . urlencode($result['error']));
                 exit;
             }
+
             header("Location: /index.php?action=accounts");
             exit;
         }
 
         // ----------------------------------------------------------
-        // GET: 트리 구조 조회
+        // GET: 트리 구조 조회 (단순 조회, Service 불필요)
         // ----------------------------------------------------------
         $account_tree = $this->repo->getAccountTree($user_id);
 

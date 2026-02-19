@@ -6,18 +6,34 @@ use App\Core\Database;
 use Exception;
 use PDO;
 
-class AccountRepository {
-    private $db;
+class AccountRepository extends BaseRepository
+{
+    public function __construct(Database $db)
+    {
+        parent::__construct($db);
+    }
 
-    public function __construct(Database $db) {
-        $this->db = $db;
+    protected function getTable(): string
+    {
+        return 'accounts';
+    }
+
+    protected function hasSystemFlag(): bool
+    {
+        return true;
+    }
+
+    protected function getAllowedColumns(): array
+    {
+        return ['accountId', 'accountName', 'accountLevel', 'accountType'];
     }
 
     // ----------------------------------------------------------
     // 전체 계정 목록 (level, isSystem, parentAccountId 포함)
     // 본인 계정 + 시스템 계정 모두 반환
     // ----------------------------------------------------------
-    public function getAllAccounts(int $userId): array {
+    public function getAllAccounts(int $userId): array
+    {
         return $this->db->query(
             'SELECT * FROM accounts
              WHERE userId = ? OR isSystem = 1
@@ -28,21 +44,22 @@ class AccountRepository {
 
     // ----------------------------------------------------------
     // 트리 구조로 전체 계정 조회 (재무제표, 계정 목록 화면용)
-    // 반환: [ { ...l1_account, children: [ { ...l2_account, children: [...l3] } ] } ]
     // ----------------------------------------------------------
-    public function getAccountTree(int $userId): array {
+    public function getAccountTree(int $userId): array
+    {
         $all = $this->getAllAccounts($userId);
         return $this->buildTree($all, null);
     }
 
-    private function buildTree(array $flatList, ?int $parentId): array {
+    private function buildTree(array $flat_list, ?int $parent_id): array
+    {
         $branch = [];
-        foreach ($flatList as $item) {
-            $itemParentId = ($item['parentAccountId'] !== null)
+        foreach ($flat_list as $item) {
+            $item_parent_id = ($item['parentAccountId'] !== null)
                 ? (int)$item['parentAccountId']
                 : null;
-            if ($itemParentId === $parentId) {
-                $item['children'] = $this->buildTree($flatList, (int)$item['accountId']);
+            if ($item_parent_id === $parent_id) {
+                $item['children'] = $this->buildTree($flat_list, (int)$item['accountId']);
                 $branch[] = $item;
             }
         }
@@ -53,7 +70,8 @@ class AccountRepository {
     // 전표 입력용 계정 목록 (level=3만, 본인 + 시스템)
     // parentName 컬럼 포함 → optgroup 그룹핑용
     // ----------------------------------------------------------
-    public function getLeafAccounts(int $userId): array {
+    public function getLeafAccounts(int $userId): array
+    {
         return $this->db->query(
             'SELECT a.*, p.accountName AS parentName
              FROM accounts a
@@ -69,29 +87,28 @@ class AccountRepository {
     // 특정 계정의 모든 하위 계정 ID 목록 (원장 집계용)
     // BFS 방식으로 자신 포함 전체 자손 ID 반환
     // ----------------------------------------------------------
-    public function getDescendantIds(int $accountId): array {
+    public function getDescendantIds(int $accountId): array
+    {
         $rows = $this->db->query(
             'SELECT accountId, parentAccountId FROM accounts',
             []
         )->fetchAll();
 
-        // parentId -> children IDs 맵 생성
-        $childrenMap = [];
+        $children_map = [];
         foreach ($rows as $row) {
             if ($row['parentAccountId'] !== null) {
-                $childrenMap[(int)$row['parentAccountId']][] = (int)$row['accountId'];
+                $children_map[(int)$row['parentAccountId']][] = (int)$row['accountId'];
             }
         }
 
-        // BFS
         $result = [];
         $queue  = [$accountId];
         while (!empty($queue)) {
             $current  = array_shift($queue);
             $result[] = $current;
-            if (isset($childrenMap[$current])) {
-                foreach ($childrenMap[$current] as $childId) {
-                    $queue[] = $childId;
+            if (isset($children_map[$current])) {
+                foreach ($children_map[$current] as $child_id) {
+                    $queue[] = $child_id;
                 }
             }
         }
@@ -99,10 +116,14 @@ class AccountRepository {
     }
 
     // ----------------------------------------------------------
-    // 계정과목 생성 (level, parentAccountId 포함)
-    // accountType은 상위 계정에서 자동 상속 — 컨트롤러에서 결정
+    // 계정과목 생성 (기존 메서드 유지 — 하위 호환)
+    // Phase 2 이후 AccountService는 부모의 create() 메서드를 사용
+    //
+    // @deprecated Phase 2 이후 AccountService::createAccount()로 대체됨.
+    //             AccountSetupController 등 기존 호출 코드가 있을 경우에만 유지.
     // ----------------------------------------------------------
-    public function createAccount(int $userId, string $name, string $type, int $level, ?int $parentAccountId): void {
+    public function createAccount(int $userId, string $name, string $type, int $level, ?int $parentAccountId): void
+    {
         $this->db->query(
             'INSERT INTO accounts (userId, accountName, accountType, accountLevel, parentAccountId)
              VALUES (?, ?, ?, ?, ?)',
@@ -111,11 +132,16 @@ class AccountRepository {
     }
 
     // ----------------------------------------------------------
-    // 계정과목 삭제
-    // isSystem=1이면 거부 / 하위 계정 존재 시 거부
+    // 계정과목 삭제 (기존 메서드 유지 — 하위 호환)
+    // Phase 2 이후 AccountService는 부모의 delete() 메서드를 사용
+    //
+    // @deprecated Phase 2 이후 AccountService::deleteAccount()로 대체됨.
+    //             isSystem 체크가 이 메서드, AccountService, BaseRepository::delete()
+    //             세 곳에서 중복 발생. 이후 이 메서드 제거 시 중복 해소됨.
     // ----------------------------------------------------------
-    public function deleteAccount(int $accountId): void {
-        $account = $this->getAccountById($accountId);
+    public function deleteAccount(int $accountId): void
+    {
+        $account = $this->findById($accountId);
         if (!$account) {
             throw new Exception("계정을 찾을 수 없습니다.");
         }
@@ -132,26 +158,23 @@ class AccountRepository {
             throw new Exception("하위 계정이 존재하여 삭제할 수 없습니다. 하위 계정을 먼저 삭제하세요.");
         }
 
-        $this->db->query(
-            'DELETE FROM accounts WHERE accountId = ?',
-            [$accountId]
-        );
+        $this->db->query('DELETE FROM accounts WHERE accountId = ?', [$accountId]);
     }
 
     // ----------------------------------------------------------
-    // 특정 계정 조회
+    // 특정 계정 조회 (기존 메서드 유지 — 하위 호환)
+    // 내부적으로 BaseRepository::findById() 호출
     // ----------------------------------------------------------
-    public function getAccountById($account_id) {
-        return $this->db->query(
-            "SELECT * FROM accounts WHERE accountId = ?",
-            [$account_id]
-        )->fetch();
+    public function getAccountById($account_id): ?array
+    {
+        return $this->findById((int)$account_id);
     }
 
     // ----------------------------------------------------------
     // 매핑된 항목 ID 목록 조회 (체크박스용)
     // ----------------------------------------------------------
-    public function getMappedItemIds($account_id) {
+    public function getMappedItemIds($account_id): array
+    {
         return $this->db->query(
             "SELECT itemId FROM accountItemMap WHERE accountId = ?",
             [$account_id]
@@ -161,7 +184,8 @@ class AccountRepository {
     // ----------------------------------------------------------
     // 계정과목-관리항목 연결
     // ----------------------------------------------------------
-    public function linkAccountItem($account_id, $item_id) {
+    public function linkAccountItem($account_id, $item_id): void
+    {
         $this->db->query(
             "INSERT INTO accountItemMap (accountId, itemId) VALUES (?, ?)",
             [$account_id, $item_id]
@@ -171,7 +195,8 @@ class AccountRepository {
     // ----------------------------------------------------------
     // 매핑 정보 일괄 업데이트 (SP 호출)
     // ----------------------------------------------------------
-    public function updateAccountMappings($account_id, $item_ids) {
+    public function updateAccountMappings($account_id, $item_ids): void
+    {
         $json_ids = json_encode($item_ids);
         try {
             $this->db->call('_SPUpdateAccountMappings', [$account_id, $json_ids]);

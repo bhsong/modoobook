@@ -5,17 +5,39 @@ namespace App\Database;
 use App\Core\Database;
 use Exception;
 
-class ManagementRepository {
-    private $db;
+class ManagementRepository extends BaseRepository
+{
+    public function __construct(Database $db)
+    {
+        parent::__construct($db);
+    }
 
-    public function __construct($db) {
-        $this->db = $db;
+    protected function getTable(): string
+    {
+        return 'managementItems';
+    }
+
+    // managementItems 테이블의 실제 PK는 itemId
+    protected function getPrimaryKey(): string
+    {
+        return 'itemId';
+    }
+
+    protected function hasSystemFlag(): bool
+    {
+        return true;
+    }
+
+    protected function getAllowedColumns(): array
+    {
+        return ['itemId', 'itemName'];
     }
 
     // ----------------------------------------------------------
     // 관리항목 목록 조회 (isSystem 컬럼 포함, 시스템 항목도 포함)
     // ----------------------------------------------------------
-    public function getAllItems(int $userId): array {
+    public function getAllItems(int $userId): array
+    {
         return $this->db->query(
             "SELECT * FROM managementItems
              WHERE userId = ? OR isSystem = 1
@@ -27,7 +49,8 @@ class ManagementRepository {
     // ----------------------------------------------------------
     // 관리항목 추가
     // ----------------------------------------------------------
-    public function addItem(int $userId, string $itemName): void {
+    public function addItem(int $userId, string $itemName): void
+    {
         $this->db->query(
             "INSERT INTO managementItems (userId, itemName) VALUES (?, ?)",
             [$userId, $itemName]
@@ -37,7 +60,8 @@ class ManagementRepository {
     // ----------------------------------------------------------
     // 관리항목 삭제 (isSystem=1이면 거부)
     // ----------------------------------------------------------
-    public function deleteItem(int $itemId): void {
+    public function deleteItem(int $itemId): void
+    {
         $item = $this->db->query(
             "SELECT * FROM managementItems WHERE itemId = ?",
             [$itemId]
