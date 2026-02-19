@@ -1,6 +1,6 @@
 <style>
     .search-box { background: #f8f9fa; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 20px; }
-    .report-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px, background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .report-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .report-table  th, .report-table td { border: 1px solid #ddd; padding: 10px; }
     .tr-header { background-color: #f1f3f5; font-weight: bold; color: #495057; }
     .amt { text-align: right; width: 100px; font-family: 'Courier New', monospace; }
@@ -27,7 +27,7 @@
 <?php endif; ?>
 
 <?php if (!$isSearch): ?>
-    <p style="color: #666; background: #f0f0f0; padding: 20px; text-algin: center;">
+    <p style="color: #666; background: #f0f0f0; padding: 20px; text-align: center;">
         조회할 기간을 선택하고 [조회] 버튼을 눌러주세요.
     </p>
 <?php elseif (empty($logs)): ?>

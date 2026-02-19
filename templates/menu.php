@@ -1,6 +1,6 @@
 <nav style="background:#333; color:#fff; padding: 10px; border-radius: 5px;">
     <style>
-        .nav-link { color: white; margin-right: 15px, font-weight: bold; text-decoration: none; }
+        .nav-link { color: white; margin-right: 15px; font-weight: bold; text-decoration: none; }
         .nav-link:hover { color: #ffc107; }
     </style>
 
