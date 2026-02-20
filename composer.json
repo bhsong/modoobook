@@ -18,5 +18,8 @@
         {
             "name": "bhsong"
         }
-    ]
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    }
 }

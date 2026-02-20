@@ -3,28 +3,24 @@
 namespace App\Controllers;
 
 use App\Core\View;
-use App\Core\Database;
 use App\Database\AccountRepository;
 use App\Services\AuditLogger;
 use App\Services\AccountService;
-use Exception;
 
 class AccountController
 {
-    private $db;
     private $repo;
     private $accountService;
 
     public function __construct($db)
     {
-        $this->db   = $db;
         $audit_logger = new AuditLogger($db);
 
-        // GET 조회용 (단순 조회는 Service 불필요)
+        // GET 조회용 Repository — Service와 단일 인스턴스 공유
         $this->repo = new AccountRepository($db);
 
-        // POST 처리용
-        $this->accountService = new AccountService($db, $audit_logger);
+        // POST 처리용 Service — 위에서 생성한 repo 주입 (이중 인스턴스화 제거)
+        $this->accountService = new AccountService($this->repo, $audit_logger);
     }
 
     public function index()

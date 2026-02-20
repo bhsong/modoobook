@@ -6,29 +6,24 @@ use App\Database\JournalRepository;
 use App\Database\AccountRepository;
 use App\Services\AuditLogger;
 use App\Services\JournalService;
-use Exception;
-
 use App\Core\View;
-use App\Core\Database;
 
 class JournalController
 {
-    private $db;
     private $journalRepo;
     private $accRepo;
     private $journalService;
 
     public function __construct($db)
     {
-        $this->db      = $db;
         $audit_logger  = new AuditLogger($db);
 
-        // index() 에서 직접 사용
+        // index() 에서 직접 사용 — Service와 단일 인스턴스 공유
         $this->journalRepo = new JournalRepository($db);
         $this->accRepo     = new AccountRepository($db);
 
-        // save() 는 Service에 위임
-        $this->journalService = new JournalService($db, $audit_logger);
+        // save() 는 Service에 위임 — 위에서 생성한 journalRepo 주입 (이중 인스턴스화 제거)
+        $this->journalService = new JournalService($this->journalRepo, $audit_logger);
     }
 
     // ----------------------------------------------------------

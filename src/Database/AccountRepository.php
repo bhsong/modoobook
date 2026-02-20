@@ -116,6 +116,24 @@ class AccountRepository extends BaseRepository
     }
 
     // ----------------------------------------------------------
+    // 해당 계정에 연결된 journalEntries 존재 여부 확인
+    // AccountService::deleteAccount()에서 삭제 가능 여부 판단에 사용
+    //
+    // [설계 노트] journalEntries는 LedgerRepository 도메인이나,
+    // AccountService가 삭제 가능 여부 판단을 위해 최소 의존이 필요함.
+    // LedgerRepository 추가 주입의 복잡도를 피하는 실용적 타협으로 이 위치에 배치.
+    // 향후 규모 확장 시 별도 체크 서비스로 분리 가능.
+    // ----------------------------------------------------------
+    public function hasLinkedEntries(int $accountId): bool
+    {
+        $row = $this->db->query(
+            'SELECT entryId FROM journalEntries WHERE accountId = ? LIMIT 1',
+            [$accountId]
+        )->fetch();
+        return (bool)$row;
+    }
+
+    // ----------------------------------------------------------
     // 계정과목 생성 (기존 메서드 유지 — 하위 호환)
     // Phase 2 이후 AccountService는 부모의 create() 메서드를 사용
     //

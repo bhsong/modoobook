@@ -2,7 +2,6 @@
 // src/Services/JournalService.php
 namespace App\Services;
 
-use App\Core\Database;
 use App\Database\JournalRepository;
 
 class JournalService
@@ -10,9 +9,9 @@ class JournalService
     private JournalRepository $journalRepo;
     private AuditLogger       $auditLogger;
 
-    public function __construct(Database $db, AuditLogger $auditLogger)
+    public function __construct(JournalRepository $journalRepo, AuditLogger $auditLogger)
     {
-        $this->journalRepo = new JournalRepository($db);
+        $this->journalRepo = $journalRepo;
         $this->auditLogger = $auditLogger;
     }
 
@@ -92,7 +91,11 @@ class JournalService
 
         } catch (\Exception $e) {
             $this->auditLogger->logFailure('journal_save', $e->getMessage(), ['userId' => $userId]);
-            return ['success' => false, 'transactionId' => null, 'error' => $e->getMessage()];
+            // 감사 로그에는 원본 메시지 기록, 사용자 응답은 일반화 (PDO 내부 메시지 노출 방지)
+            $user_message = (str_starts_with((string)$e->getCode(), '45'))
+                ? $e->getMessage()
+                : '전표 저장 중 오류가 발생했습니다.';
+            return ['success' => false, 'transactionId' => null, 'error' => $user_message];
         }
     }
 

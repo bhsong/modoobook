@@ -2,19 +2,16 @@
 // src/Services/AccountService.php
 namespace App\Services;
 
-use App\Core\Database;
 use App\Database\AccountRepository;
 
 class AccountService
 {
-    private Database           $db;
     private AccountRepository  $accountRepo;
     private AuditLogger        $auditLogger;
 
-    public function __construct(Database $db, AuditLogger $auditLogger)
+    public function __construct(AccountRepository $accountRepo, AuditLogger $auditLogger)
     {
-        $this->db          = $db;
-        $this->accountRepo = new AccountRepository($db);
+        $this->accountRepo = $accountRepo;
         $this->auditLogger = $auditLogger;
     }
 
@@ -131,20 +128,31 @@ class AccountService
         }
 
         // 4. 해당 계정에 연결된 journalEntries 존재 시 거부
-        $linked_entry = $this->db->query(
-            'SELECT entryId FROM journalEntries WHERE accountId = ? LIMIT 1',
-            [$accountId]
-        )->fetch();
-
-        if ($linked_entry) {
+        if ($this->accountRepo->hasLinkedEntries($accountId)) {
             return ['success' => false, 'error' => '해당 계정에 연결된 전표가 있어 삭제할 수 없습니다.'];
         }
 
         // 5. 삭제 실행
         try {
-            $this->accountRepo->delete($accountId);
+            $deleted = $this->accountRepo->delete($accountId);
+        } catch (\RuntimeException $e) {
+            // BaseRepository의 시스템 레코드 보호 — 앞 단계에서 이미 걸러졌어야 하나 방어 처리
+            $this->auditLogger->logFailure('account_delete', 'DB 런타임 오류', [
+                'userId'    => $userId,
+                'accountId' => $accountId,
+            ]);
+            return ['success' => false, 'error' => '시스템 계정은 삭제할 수 없습니다.'];
         } catch (\Exception $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
+            $this->auditLogger->logFailure('account_delete', 'DB 오류', [
+                'userId'    => $userId,
+                'accountId' => $accountId,
+            ]);
+            error_log('[AccountService] delete failed: ' . $e->getMessage());
+            return ['success' => false, 'error' => '계정 삭제 중 오류가 발생했습니다.'];
+        }
+
+        if (!$deleted) {
+            return ['success' => false, 'error' => '계정을 찾을 수 없거나 이미 삭제된 계정입니다.'];
         }
 
         // 6. 감사 로그
