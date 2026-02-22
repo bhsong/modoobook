@@ -1,4 +1,5 @@
 <?php
+
 /**
  * JournalServiceTest — 복식부기 전표 저장 Service 단위 테스트
  *
@@ -9,21 +10,23 @@
 
 namespace Tests\Unit\Services;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
-use App\Services\JournalService;
-use App\Services\AuditLogger;
 use App\Database\JournalRepository;
+use App\Services\AuditLogger;
+use App\Services\JournalService;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 class JournalServiceTest extends TestCase
 {
     private JournalService $service;
+
     private MockObject $repoMock;
+
     private MockObject $auditMock;
 
     protected function setUp(): void
     {
-        $this->repoMock  = $this->createMock(JournalRepository::class);
+        $this->repoMock = $this->createMock(JournalRepository::class);
         $this->auditMock = $this->createMock(AuditLogger::class);
 
         // JournalRepository Mock을 직접 주입 — DB 없이 Service 로직만 단위 테스트
@@ -47,8 +50,8 @@ class JournalServiceTest extends TestCase
             ]
         );
 
-        // Repository saveComplexTransaction은 성공 (예외 없이 반환)
-        $this->repoMock->method('saveComplexTransaction')->willReturn(null);
+        // Repository saveComplexTransaction은 void — 호출만 허용 (반환값 설정 불필요)
+        $this->repoMock->method('saveComplexTransaction');
 
         // Act
         $result = $this->service->save($formData, userId: 1);
@@ -173,7 +176,7 @@ class JournalServiceTest extends TestCase
     // =========================================================
 
     /** @test */
-    public function SP_예외_발생_시_저장_실패_반환(): void
+    public function s_p_예외_발생_시_저장_실패_반환(): void
     {
         // Arrange: Repository가 예외를 던지는 상황 시뮬레이션
         $formData = $this->makeFormData(
@@ -202,20 +205,20 @@ class JournalServiceTest extends TestCase
     private function makeFormData(string $date, string $description = '테스트', array $entries = []): array
     {
         $data = [
-            'tr_date'     => $date,
+            'tr_date' => $date,
             'description' => $description,
-            'acc'         => [],
-            'dr'          => [],
-            'cr'          => [],
-            'item_id'     => [],
-            'item_val'    => [],
+            'acc' => [],
+            'dr' => [],
+            'cr' => [],
+            'item_id' => [],
+            'item_val' => [],
         ];
 
         foreach ($entries as $e) {
-            $data['acc'][]      = $e['acc'];
-            $data['dr'][]       = $e['dr'];
-            $data['cr'][]       = $e['cr'];
-            $data['item_id'][]  = $e['item_id'];
+            $data['acc'][] = $e['acc'];
+            $data['dr'][] = $e['dr'];
+            $data['cr'][] = $e['cr'];
+            $data['item_id'][] = $e['item_id'];
             $data['item_val'][] = $e['item_val'];
         }
 

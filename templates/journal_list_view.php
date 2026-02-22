@@ -22,21 +22,21 @@
 
 <h3>전표 조회</h3>
 
-<?php if (isset($error_msg)): ?>
+<?php if (isset($error_msg)) { ?>
     <p style="color: red; font-weight: bold;"> ⚠️ <?= htmlspecialchars($error_msg) ?></p>
-<?php endif; ?>
+<?php } ?>
 
-<?php if (!$isSearch): ?>
+<?php if (! $isSearch) { ?>
     <p style="color: #666; background: #f0f0f0; padding: 20px; text-align: center;">
         조회할 기간을 선택하고 [조회] 버튼을 눌러주세요.
     </p>
-<?php elseif (empty($logs)): ?>
+<?php } elseif (empty($logs)) { ?>
     <p>
         해당 기간에 등록된 전표가 없습니다.
         <a href="/index.php?action=journal_entry" style="font-weight:bold;">전표 입력하기</a>
     </p>
-<?php else: ?>
-    <?php foreach ($logs as $trNo => $entries): ?>
+<?php } else { ?>
+    <?php foreach ($logs as $trNo => $entries) { ?>
         <table class="report-table">
             <thead>
                 <tr class='tr-header'>
@@ -55,20 +55,21 @@
             </thead>
             <tbody>
                 <?php
-                $sumDr = 0; $sumCr = 0;
-                foreach ($entries as $row):
-                    $sumDr += $row['debitAmount'];
-                    $sumCr += $row['creditAmount'];
-                ?>
+                $sumDr = 0;
+        $sumCr = 0;
+        foreach ($entries as $row) {
+            $sumDr += $row['debitAmount'];
+            $sumCr += $row['creditAmount'];
+            ?>
                 <tr>
                     <td style="width: 30%;"><?= htmlspecialchars($row['accountName']) ?></td>
                     <td class="mgmt-text">
-                        <?= $row['itemName'] ? "● ".htmlspecialchars($row['itemName']).": ".$row['itemValue'] : "" ?>
+                        <?= $row['itemName'] ? '● '.htmlspecialchars($row['itemName']).': '.h($row['itemValue']) : '' ?>
                     </td>
                     <td class="amt"><?= number_format($row['debitAmount']) ?></td>
                     <td class="amt"><?= number_format($row['creditAmount']) ?></td>
                 </tr>
-                <?php endforeach; ?>
+                <?php } ?>
             </tbody>
             <tfoot>
                 <tr class="total-row">
@@ -78,5 +79,5 @@
                 </tr>
             </tfoot>
         </table>
-    <?php endforeach; ?>
-<?php endif; ?>
+    <?php } ?>
+<?php } ?>

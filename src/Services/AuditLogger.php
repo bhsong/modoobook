@@ -1,5 +1,7 @@
 <?php
+
 // src/Services/AuditLogger.php
+
 namespace App\Services;
 
 use App\Core\Database;
@@ -7,15 +9,18 @@ use App\Core\Database;
 class AuditLogger
 {
     private Database $db;
-    private ?int     $userId;
-    private string   $ip;
-    private string   $userAgent;
+
+    private ?int $userId;
+
+    private string $ip;
+
+    private string $userAgent;
 
     public function __construct(Database $db)
     {
-        $this->db        = $db;
-        $this->userId    = isset($_SESSION['userId']) ? (int)$_SESSION['userId'] : null;
-        $this->ip        = $_SERVER['REMOTE_ADDR'] ?? '';
+        $this->db = $db;
+        $this->userId = isset($_SESSION['userId']) ? (int) $_SESSION['userId'] : null;
+        $this->ip = $_SERVER['REMOTE_ADDR'] ?? '';
         $this->userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
     }
 
@@ -38,11 +43,11 @@ class AuditLogger
                     $action,
                     $this->ip,
                     $this->userAgent,
-                    !empty($context) ? json_encode($context, JSON_UNESCAPED_UNICODE) : null,
+                    ! empty($context) ? json_encode($context, JSON_UNESCAPED_UNICODE) : null,
                 ]
             );
         } catch (\Exception $e) {
-            error_log("[AuditLogger] 로그 저장 실패 ({$action}): " . $e->getMessage());
+            error_log("[AuditLogger] 로그 저장 실패 ({$action}): ".$e->getMessage());
         }
     }
 
@@ -66,7 +71,7 @@ class AuditLogger
                 ]
             );
         } catch (\Exception $e) {
-            error_log("[AuditLogger] 실패 로그 저장 실패 ({$action}): " . $e->getMessage());
+            error_log("[AuditLogger] 실패 로그 저장 실패 ({$action}): ".$e->getMessage());
         }
     }
 }

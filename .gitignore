@@ -16,5 +16,8 @@ Thumbs.db
 *.md
 md/
 .claude/
+.cursorrules
 
 *.sh
+
+*.cache

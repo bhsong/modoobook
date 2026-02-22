@@ -1,9 +1,10 @@
 <?php
+
 /**
  * PHPUnit Bootstrap
  * Docker Compose 환경 기준
  */
-require_once dirname(__DIR__) . '/vendor/autoload.php';
+require_once dirname(__DIR__).'/vendor/autoload.php';
 
 // 테스트 전용 환경변수 로드
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));

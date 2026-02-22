@@ -1,35 +1,40 @@
 <?php
+
 // src/Controllers/LedgerController.php
+
 namespace App\Controllers;
 
-use App\Database\LedgerRepository;
+use App\Core\View;
 use App\Database\AccountRepository;
+use App\Database\LedgerRepository;
 use Exception;
 
-use App\Core\View;
-use App\Core\Database;
-
-class LedgerController {
+class LedgerController
+{
     private $db;
+
     private $ledgerRepo;
+
     private $accRepo;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->db = $db;
-        $this->ledgerRepo = new LedgerRepository($db);
-        $this->accRepo = new AccountRepository($db);
+        $this->ledgerRepo = new LedgerRepository($this->db);
+        $this->accRepo = new AccountRepository($this->db);
     }
 
-    public function index() {
+    public function index()
+    {
         // 로그인 체크
-        if(!isset($_SESSION['userId'])) {
-            header("Location: /index.php?action=login");
+        if (! isset($_SESSION['userId'])) {
+            header('Location: /index.php?action=login');
             exit;
         }
 
         $user_id = $_SESSION['userId'];
 
-        // 계정 목록 가져오기 
+        // 계정 목록 가져오기
         $account_list = $this->accRepo->getLeafAccounts($user_id);
 
         // 조회 조건
@@ -37,13 +42,13 @@ class LedgerController {
         $from_date = $_GET['from_date'] ?? date('Y-m-01');
         $to_date = $_GET['to_date'] ?? date('Y-m-d');
 
-        $isSearch = !empty($acc_id);
+        $isSearch = ! empty($acc_id);
         $ledger_data = [];
         $error_message = null;
 
         if ($isSearch) {
-            try{
-                $ledger_data = $this->ledgerRepo->getLedgerData($user_id, $acc_id, $from_date, $to_date); 
+            try {
+                $ledger_data = $this->ledgerRepo->getLedgerData($user_id, $acc_id, $from_date, $to_date);
             } catch (Exception $e) {
                 $error_message = $e->getMessage();
             }
@@ -55,9 +60,7 @@ class LedgerController {
             'to_date' => $to_date,
             'isSearch' => $isSearch,
             'ledger_data' => $ledger_data,
-            'error_message' => $error_message
+            'error_message' => $error_message,
         ]);
     }
 }
-
-

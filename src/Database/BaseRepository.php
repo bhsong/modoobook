@@ -1,5 +1,7 @@
 <?php
+
 // src/Database/BaseRepository.php
+
 namespace App\Database;
 
 use App\Core\Database;
@@ -29,9 +31,10 @@ abstract class BaseRepository
     {
         $table = $this->getTable();
         if (str_ends_with($table, 's')) {
-            return substr($table, 0, -1) . 'Id';
+            return substr($table, 0, -1).'Id';
         }
-        return $table . 'Id';
+
+        return $table.'Id';
     }
 
     /**
@@ -58,7 +61,7 @@ abstract class BaseRepository
     public function findById(int $id): ?array
     {
         $table = $this->getTable();
-        $pk    = $this->getPrimaryKey();
+        $pk = $this->getPrimaryKey();
 
         $result = $this->db->query(
             "SELECT * FROM {$table} WHERE {$pk} = ?",
@@ -75,25 +78,25 @@ abstract class BaseRepository
     // ----------------------------------------------------------
     public function findAll(array $where = [], string $orderBy = ''): array
     {
-        $table  = $this->getTable();
-        $sql    = "SELECT * FROM {$table}";
+        $table = $this->getTable();
+        $sql = "SELECT * FROM {$table}";
         $params = [];
 
-        if (!empty($where)) {
+        if (! empty($where)) {
             $conditions = [];
             foreach ($where as $col => $val) {
-                if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $col)) {
+                if (! preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $col)) {
                     throw new \InvalidArgumentException("허용되지 않는 컬럼명: {$col}");
                 }
                 $conditions[] = "{$col} = ?";
-                $params[]     = $val;
+                $params[] = $val;
             }
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+            $sql .= ' WHERE '.implode(' AND ', $conditions);
         }
 
         if ($orderBy !== '') {
             $allowed = $this->getAllowedColumns();
-            if (!in_array($orderBy, $allowed, true)) {
+            if (! in_array($orderBy, $allowed, true)) {
                 throw new \InvalidArgumentException("허용되지 않는 정렬 컬럼: {$orderBy}");
             }
             $sql .= " ORDER BY {$orderBy}";
@@ -107,22 +110,22 @@ abstract class BaseRepository
     // ----------------------------------------------------------
     public function create(array $data): int
     {
-        $table        = $this->getTable();
-        $cols         = [];
+        $table = $this->getTable();
+        $cols = [];
         $placeholders = [];
-        $params       = [];
+        $params = [];
 
         foreach ($data as $col => $val) {
-            if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $col)) {
+            if (! preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $col)) {
                 throw new \InvalidArgumentException("허용되지 않는 컬럼명: {$col}");
             }
-            $cols[]         = $col;
+            $cols[] = $col;
             $placeholders[] = '?';
-            $params[]       = $val;
+            $params[] = $val;
         }
 
         $col_list = implode(', ', $cols);
-        $ph_list  = implode(', ', $placeholders);
+        $ph_list = implode(', ', $placeholders);
 
         $this->db->query("INSERT INTO {$table} ({$col_list}) VALUES ({$ph_list})", $params);
 
@@ -134,22 +137,22 @@ abstract class BaseRepository
     // ----------------------------------------------------------
     public function update(int $id, array $data): bool
     {
-        $table  = $this->getTable();
-        $pk     = $this->getPrimaryKey();
-        $sets   = [];
+        $table = $this->getTable();
+        $pk = $this->getPrimaryKey();
+        $sets = [];
         $params = [];
 
         foreach ($data as $col => $val) {
-            if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $col)) {
+            if (! preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $col)) {
                 throw new \InvalidArgumentException("허용되지 않는 컬럼명: {$col}");
             }
-            $sets[]   = "{$col} = ?";
+            $sets[] = "{$col} = ?";
             $params[] = $val;
         }
 
         $params[] = $id;
-        $set_str  = implode(', ', $sets);
-        $stmt     = $this->db->query("UPDATE {$table} SET {$set_str} WHERE {$pk} = ?", $params);
+        $set_str = implode(', ', $sets);
+        $stmt = $this->db->query("UPDATE {$table} SET {$set_str} WHERE {$pk} = ?", $params);
 
         return $stmt->rowCount() > 0;
     }
@@ -160,12 +163,12 @@ abstract class BaseRepository
     public function delete(int $id): bool
     {
         $table = $this->getTable();
-        $pk    = $this->getPrimaryKey();
+        $pk = $this->getPrimaryKey();
 
         if ($this->hasSystemFlag()) {
             $record = $this->findById($id);
-            if ($record && (int)($record['isSystem'] ?? 0) === 1) {
-                throw new \RuntimeException("시스템 레코드는 삭제할 수 없습니다.");
+            if ($record && (int) ($record['isSystem'] ?? 0) === 1) {
+                throw new \RuntimeException('시스템 레코드는 삭제할 수 없습니다.');
             }
         }
 

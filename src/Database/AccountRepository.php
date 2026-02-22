@@ -1,5 +1,7 @@
 <?php
+
 // src/Database/AccountRepository.php
+
 namespace App\Database;
 
 use App\Core\Database;
@@ -48,6 +50,7 @@ class AccountRepository extends BaseRepository
     public function getAccountTree(int $userId): array
     {
         $all = $this->getAllAccounts($userId);
+
         return $this->buildTree($all, null);
     }
 
@@ -56,13 +59,14 @@ class AccountRepository extends BaseRepository
         $branch = [];
         foreach ($flat_list as $item) {
             $item_parent_id = ($item['parentAccountId'] !== null)
-                ? (int)$item['parentAccountId']
+                ? (int) $item['parentAccountId']
                 : null;
             if ($item_parent_id === $parent_id) {
-                $item['children'] = $this->buildTree($flat_list, (int)$item['accountId']);
+                $item['children'] = $this->buildTree($flat_list, (int) $item['accountId']);
                 $branch[] = $item;
             }
         }
+
         return $branch;
     }
 
@@ -97,14 +101,14 @@ class AccountRepository extends BaseRepository
         $children_map = [];
         foreach ($rows as $row) {
             if ($row['parentAccountId'] !== null) {
-                $children_map[(int)$row['parentAccountId']][] = (int)$row['accountId'];
+                $children_map[(int) $row['parentAccountId']][] = (int) $row['accountId'];
             }
         }
 
         $result = [];
-        $queue  = [$accountId];
-        while (!empty($queue)) {
-            $current  = array_shift($queue);
+        $queue = [$accountId];
+        while (! empty($queue)) {
+            $current = array_shift($queue);
             $result[] = $current;
             if (isset($children_map[$current])) {
                 foreach ($children_map[$current] as $child_id) {
@@ -112,6 +116,7 @@ class AccountRepository extends BaseRepository
                 }
             }
         }
+
         return $result;
     }
 
@@ -130,7 +135,8 @@ class AccountRepository extends BaseRepository
             'SELECT entryId FROM journalEntries WHERE accountId = ? LIMIT 1',
             [$accountId]
         )->fetch();
-        return (bool)$row;
+
+        return (bool) $row;
     }
 
     // ----------------------------------------------------------
@@ -160,11 +166,11 @@ class AccountRepository extends BaseRepository
     public function deleteAccount(int $accountId): void
     {
         $account = $this->findById($accountId);
-        if (!$account) {
-            throw new Exception("계정을 찾을 수 없습니다.");
+        if (! $account) {
+            throw new Exception('계정을 찾을 수 없습니다.');
         }
-        if ((int)$account['isSystem'] === 1) {
-            throw new Exception("시스템 계정은 삭제할 수 없습니다.");
+        if ((int) $account['isSystem'] === 1) {
+            throw new Exception('시스템 계정은 삭제할 수 없습니다.');
         }
 
         $children = $this->db->query(
@@ -172,8 +178,8 @@ class AccountRepository extends BaseRepository
             [$accountId]
         )->fetchAll();
 
-        if (!empty($children)) {
-            throw new Exception("하위 계정이 존재하여 삭제할 수 없습니다. 하위 계정을 먼저 삭제하세요.");
+        if (! empty($children)) {
+            throw new Exception('하위 계정이 존재하여 삭제할 수 없습니다. 하위 계정을 먼저 삭제하세요.');
         }
 
         $this->db->query('DELETE FROM accounts WHERE accountId = ?', [$accountId]);
@@ -185,7 +191,7 @@ class AccountRepository extends BaseRepository
     // ----------------------------------------------------------
     public function getAccountById($account_id): ?array
     {
-        return $this->findById((int)$account_id);
+        return $this->findById((int) $account_id);
     }
 
     // ----------------------------------------------------------
@@ -194,7 +200,7 @@ class AccountRepository extends BaseRepository
     public function getMappedItemIds($account_id): array
     {
         return $this->db->query(
-            "SELECT itemId FROM accountItemMap WHERE accountId = ?",
+            'SELECT itemId FROM accountItemMap WHERE accountId = ?',
             [$account_id]
         )->fetchAll(PDO::FETCH_COLUMN);
     }
@@ -205,7 +211,7 @@ class AccountRepository extends BaseRepository
     public function linkAccountItem($account_id, $item_id): void
     {
         $this->db->query(
-            "INSERT INTO accountItemMap (accountId, itemId) VALUES (?, ?)",
+            'INSERT INTO accountItemMap (accountId, itemId) VALUES (?, ?)',
             [$account_id, $item_id]
         );
     }
@@ -219,7 +225,7 @@ class AccountRepository extends BaseRepository
         try {
             $this->db->call('_SPUpdateAccountMappings', [$account_id, $json_ids]);
         } catch (Exception $e) {
-            throw new Exception("매핑 저장 실패: " . $e->getMessage());
+            throw new Exception('매핑 저장 실패: '.$e->getMessage());
         }
     }
 }

@@ -1,10 +1,12 @@
 <?php
+
 // src/Database/JournalRepository.php
+
 namespace App\Database;
 
 use App\Core\Database;
-use PDO;
 use Exception;
+use PDO;
 
 class JournalRepository extends BaseRepository
 {
@@ -45,10 +47,10 @@ class JournalRepository extends BaseRepository
     public function getAccountItemMap(int $user_id): array
     {
         return $this->db->query(
-            "SELECT m.accountId, m.itemId, i.itemName
+            'SELECT m.accountId, m.itemId, i.itemName
              FROM accountItemMap m
              JOIN managementItems i ON m.itemId = i.itemId
-             WHERE i.userId = ? OR i.isSystem = 1",
+             WHERE i.userId = ? OR i.isSystem = 1',
             [$user_id]
         )->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
     }
@@ -60,10 +62,10 @@ class JournalRepository extends BaseRepository
     {
         try {
             $this->db->call('sp_save_complex_transaction', [
-                $user_id, $date, $description, $jsonData
+                $user_id, $date, $description, $jsonData,
             ]);
         } catch (Exception $e) {
-            throw new Exception("전표 저장 실패: " . $e->getMessage());
+            throw new Exception('전표 저장 실패: '.$e->getMessage());
         }
     }
 }

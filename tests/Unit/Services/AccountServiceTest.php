@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AccountServiceTest — 계정과목 Service 단위 테스트
  *
@@ -9,21 +10,23 @@
 
 namespace Tests\Unit\Services;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
+use App\Database\AccountRepository;
 use App\Services\AccountService;
 use App\Services\AuditLogger;
-use App\Database\AccountRepository;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 class AccountServiceTest extends TestCase
 {
     private AccountService $service;
+
     private MockObject $repoMock;
+
     private MockObject $auditMock;
 
     protected function setUp(): void
     {
-        $this->repoMock  = $this->createMock(AccountRepository::class);
+        $this->repoMock = $this->createMock(AccountRepository::class);
         $this->auditMock = $this->createMock(AuditLogger::class);
 
         // AccountRepository Mock을 직접 주입 — DB 없이 Service 로직만 단위 테스트
@@ -88,7 +91,7 @@ class AccountServiceTest extends TestCase
     }
 
     /** @test */
-    public function parentAccountId가_없으면_생성_실패(): void
+    public function parent_account_id가_없으면_생성_실패(): void
     {
         $result = $this->service->createAccount(
             ['accountName' => '편의점'],
@@ -99,7 +102,7 @@ class AccountServiceTest extends TestCase
     }
 
     /** @test */
-    public function parentAccountId가_0이면_생성_실패(): void
+    public function parent_account_id가_0이면_생성_실패(): void
     {
         $result = $this->service->createAccount(
             ['accountName' => '편의점', 'parentAccountId' => 0],
@@ -190,7 +193,7 @@ class AccountServiceTest extends TestCase
     }
 
     /** @test */
-    public function 정상_삭제_시_repo_delete가_accountId로_호출됨(): void
+    public function 정상_삭제_시_repo_delete가_account_id로_호출됨(): void
     {
         $this->repoMock->method('findById')
             ->willReturn(['accountId' => 200, 'isSystem' => 0]);
@@ -219,7 +222,7 @@ class AccountServiceTest extends TestCase
     }
 
     /** @test */
-    public function isSystem_1인_계정_삭제_시도는_거부(): void
+    public function is_system_1인_계정_삭제_시도는_거부(): void
     {
         $this->repoMock->method('findById')
             ->willReturn(['accountId' => 1, 'isSystem' => 1]);

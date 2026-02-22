@@ -1,0 +1,14 @@
+parameters:
+    level: 5
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - vendor
+    ignoreErrors:
+        - message: '~Access to an undefined property PHPUnit\\Framework\\TestCase::\$[a-zA-Z_]+~'
+          path: tests/
+        - message: '~Parameter #\d+ \$[a-zA-Z]+ of class .+ constructor expects .+, Mockery\\MockInterface given~'
+          path: tests/
+        - message: '~Call to an undefined method Mockery\\.+::once\(\)~'
+          path: tests/

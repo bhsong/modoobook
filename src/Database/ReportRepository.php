@@ -1,10 +1,12 @@
 <?php
+
 // src/Database/ReportRepository.php
+
 namespace App\Database;
 
 use App\Core\Database;
-use PDO;
 use Exception;
+use PDO;
 
 class ReportRepository extends BaseRepository
 {
@@ -25,7 +27,7 @@ class ReportRepository extends BaseRepository
     {
         try {
             $stmt = $this->db->query(
-                "CALL _SPGetJournalList(?, ?, ?)",
+                'CALL _SPGetJournalList(?, ?, ?)',
                 [$user_id, $from_date, $to_date]
             );
 
@@ -34,7 +36,7 @@ class ReportRepository extends BaseRepository
 
             return $logs ?: [];
         } catch (Exception $e) {
-            throw new Exception("전표 조회 실패: " . $e->getMessage());
+            throw new Exception('전표 조회 실패: '.$e->getMessage());
         }
     }
 
@@ -54,7 +56,7 @@ class ReportRepository extends BaseRepository
             ->join('INNER', 'journalEntries', 'je', 't.transactionId = je.transactionId')
             ->join('INNER', 'accounts', 'a', 'je.accountId = a.accountId')
             ->where('t.userId', $userId)
-            ->whereBetween('t.transactionDate', $year . '-01-01', $year . '-12-31')
+            ->whereBetween('t.transactionDate', $year.'-01-01', $year.'-12-31')
             ->groupBy(['a.accountType', 'month'])
             ->orderBy('month')
             ->get();
@@ -68,7 +70,7 @@ class ReportRepository extends BaseRepository
     {
         // YEAR()/MONTH() 함수 대신 PHP로 날짜 범위 계산 (PDO 바인딩 가능)
         $month_start = date('Y-m-01');
-        $month_end   = date('Y-m-t');
+        $month_end = date('Y-m-t');
 
         $result = (new \App\Core\ReportBuilder($this->db))
             ->select(['COALESCE(SUM(je.debitAmount), 0) as totalExpense'])
@@ -80,6 +82,6 @@ class ReportRepository extends BaseRepository
             ->whereBetween('t.transactionDate', $month_start, $month_end)
             ->get();
 
-        return (int)($result[0]['totalExpense'] ?? 0);
+        return (int) ($result[0]['totalExpense'] ?? 0);
     }
 }

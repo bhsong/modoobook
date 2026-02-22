@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  phpunit.xml — PHPUnit 설정
+  
+  테스트 스위트:
+    Unit:    tests/Unit/     — Mock 기반, DB 불필요 (빠름)
+    Feature: tests/Feature/  — 실제 DB 사용 (APP_ENV=testing 필수)
+  
+  실행:
+    ./scripts/test.sh all      # 전체
+    ./scripts/test.sh unit     # Unit만
+    ./scripts/test.sh feature  # Feature만 (APP_ENV=testing 자동 설정)
+-->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="tests/bootstrap.php"
          colors="true"
-         testdox="true">
+         stopOnFailure="false">
 
     <testsuites>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
-        <testsuite name="Integration">
-            <directory>tests/Integration</directory>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+            <!-- Feature 테스트는 별도 bootstrap 사용 -->
         </testsuite>
     </testsuites>
 
@@ -19,10 +32,13 @@
             <directory>src</directory>
         </include>
         <exclude>
-            <!-- Controller/View는 단위 테스트 범위 외 -->
-            <directory>src/Controllers</directory>
-            <directory>src/Core/View.php</directory>
+            <directory>vendor</directory>
         </exclude>
     </source>
+
+    <php>
+        <!-- Unit 테스트 기본값 (Feature는 .env.testing에서 오버라이드) -->
+        <env name="APP_ENV" value="testing" force="false"/>
+    </php>
 
 </phpunit>

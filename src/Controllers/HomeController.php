@@ -1,26 +1,28 @@
 <?php
+
 // src/Controllers/HomeController.php
+
 namespace App\Controllers;
 
 use App\Core\View;
-use App\Core\Database;
 use App\Database\ReportRepository;
 
 class HomeController
 {
     private $db;
+
     private $reportRepo;
 
     public function __construct(\App\Core\Database $db)
     {
-        $this->db         = $db;
-        $this->reportRepo = new ReportRepository($db);
+        $this->db = $db;
+        $this->reportRepo = new ReportRepository($this->db);
     }
 
     public function index()
     {
-        if (!isset($_SESSION['userId'])) {
-            header("Location: /index.php?action=login");
+        if (! isset($_SESSION['userId'])) {
+            header('Location: /index.php?action=login');
             exit;
         }
 
@@ -30,7 +32,7 @@ class HomeController
         $monthly_expense = $this->reportRepo->getCurrentMonthExpense($user_id);
 
         View::render('home_view', [
-            'userName'       => $_SESSION['userName'] ?? '사용자',
+            'userName' => $_SESSION['userName'] ?? '사용자',
             'monthlyExpense' => $monthly_expense,
         ]);
     }

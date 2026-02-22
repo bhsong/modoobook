@@ -2,7 +2,7 @@ DROP PROCEDURE IF EXISTS _SPGetJournalList;
 
 DELIMITER //
 CREATE PROCEDURE _SPGetJournalList (
-    IN p_user_id INT
+    IN p_user_id INT,
     IN p_form_date DATE,
     IN p_to_date DATE
 )

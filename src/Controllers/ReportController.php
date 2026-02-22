@@ -1,26 +1,30 @@
 <?php
+
 // src/Controllers/ReportController.php
+
 namespace App\Controllers;
 
+use App\Core\View;
 use App\Database\ReportRepository;
 use Exception;
 
-use App\Core\View;
-use App\Core\Database;
-
-class ReportController {
+class ReportController
+{
     private $db;
+
     private $repo;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->db = $db;
-        $this->repo = new ReportRepository($db);
+        $this->repo = new ReportRepository($this->db);
     }
 
     // 전표 조회 화면 (journal_list)
-    public function journalList() {
-        if (!isset($_SESSION['userId'])) {
-            header("Location: /index.php?action=login");
+    public function journalList()
+    {
+        if (! isset($_SESSION['userId'])) {
+            header('Location: /index.php?action=login');
             exit;
         }
         $user_id = $_SESSION['userId'];
@@ -50,7 +54,7 @@ class ReportController {
             'from_date' => $from_date,
             'to_date' => $to_date,
             'isSearch' => $isSearch,
-            'error_msg' => $error_msg
+            'error_msg' => $error_msg,
         ]);
     }
 }

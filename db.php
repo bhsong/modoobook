@@ -1,7 +1,8 @@
 <?php
+
 // index.php가 아닌 곳에서 독립적으로 실행될 때를 대비해 오토로더 체크
-if (!class_exists('Dotenv\Dotenv')) {
-    require_once __DIR__ . '/vendor/autoload.php';
+if (! class_exists('Dotenv\Dotenv')) {
+    require_once __DIR__.'/vendor/autoload.php';
 }
 
 use App\Core\Database;
@@ -32,5 +33,5 @@ $config = [
 try {
     $db = new Database($config);
 } catch (Exception $e) {
-    die("Database Connection Failed: " . $e->getMessage());
+    exit('Database Connection Failed: '.$e->getMessage());
 }

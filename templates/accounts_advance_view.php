@@ -5,18 +5,19 @@
 </p>
 
 <form method="POST" action="/index.php?action=accounts_advance">
+    <?= \App\Core\CsrfGuard::tokenField() ?>
     <label>계정과목:</label>
     <select name="account_id">
-        <?php foreach ($account_list as $acc): ?>
-            <option value="<?= $acc['accountId'] ?>"><?= htmlspecialchars($acc['accountName']) ?></option>
-        <?php endforeach; ?>
+        <?php foreach ($account_list as $acc) { ?>
+            <option value="<?= (int) $acc['accountId'] ?>"><?= htmlspecialchars($acc['accountName']) ?></option>
+        <?php } ?>
     </select>
 
     <label>필요한 관리항목:</label>
     <select name="item_id">
-        <?php foreach ($item_list as $item): ?>
-            <option value="<?= $item['itemId'] ?>"><?= htmlspecialchars($item['itemName']) ?></option>
-        <?php endforeach; ?>
+        <?php foreach ($item_list as $item) { ?>
+            <option value="<?= (int) $item['itemId'] ?>"><?= htmlspecialchars($item['itemName']) ?></option>
+        <?php } ?>
     </select>
 
     <button type="submit" name="link_item">항목 연결</button>

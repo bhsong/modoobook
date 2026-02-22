@@ -22,10 +22,10 @@
 </head>
 <body>
 
-    <?php if (isset($_SESSION['userId'])): ?>
-        <?php include __DIR__ . '/menu.php'; ?>
+    <?php if (isset($_SESSION['userId'])) { ?>
+        <?php include __DIR__.'/menu.php'; ?>
         <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
-    <?php endif; ?>
+    <?php } ?>
 
     <main>
         <?= $content ?>

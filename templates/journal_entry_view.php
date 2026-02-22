@@ -4,13 +4,14 @@
     .total-box { font-weight: bold; font-size: 1.2em; margin-top: 20px; color: blue; }
 </style>
 
-<?php if (!empty($_GET['error'])): ?>
+<?php if (! empty($_GET['error'])) { ?>
     <div style="padding: 10px; margin-bottom: 10px; background: #f8d7da; border: 1px solid #f5c2c7; border-radius: 4px; color: #842029;">
         ⚠️ <?= htmlspecialchars($_GET['error']) ?>
     </div>
-<?php endif; ?>
+<?php } ?>
 
 <form action="/index.php?action=journal_save" method="POST" id="transForm">
+    <?= \App\Core\CsrfGuard::tokenField() ?>
     <h3>전표 입력 (N:M 복식부기)</h3>
     일자: <input type="date" name="tr_date" value="<?= date('Y-m-d') ?>">
     적요: <input type="text" name="description" style="width:300px" required>

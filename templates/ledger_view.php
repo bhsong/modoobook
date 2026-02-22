@@ -16,11 +16,11 @@
         계정:
         <select name="account_id" required>
                 <option value="">-- 계정 선택 --</option>
-                <?php foreach($account_list as $acc): ?>
-                    <option value="<?= $acc['accountId'] ?>" <?= $acc_id == $acc['accountId'] ? 'selected' : '' ?>>
+                <?php foreach ($account_list as $acc) { ?>
+                    <option value="<?= (int) $acc['accountId'] ?>" <?= $acc_id == $acc['accountId'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($acc['accountName']) ?>
                 </option>
-            <?php endforeach; ?>
+            <?php } ?>
         </select>
 
         기간:
@@ -30,11 +30,11 @@
     </form>
 </div>
 
-<?php if (isset($error_message)): ?>
+<?php if (isset($error_message)) { ?>
     <p style="color:red; font-weight:bold;">ERROR: <?= htmlspecialchars($error_message) ?></p>
-<?php endif; ?>
+<?php } ?>
 
-<?php if ($isSearch && !empty($ledger_data)): ?>
+<?php if ($isSearch && ! empty($ledger_data)) { ?>
     <?php
         $currentBalance = ($ledger_data[0]['base_balance']) ?? 0;   // 시작 잔액 설정
     ?>
@@ -57,30 +57,30 @@
         
             </tr>
 
-            <?php foreach ($ledger_data as $row):
+            <?php foreach ($ledger_data as $row) {
                 // 잔액 계산 로직 (자산/비용: 차변+, 대변- / 부채/자본/수익: 반대지만 일단 단순 차감으로 구현)
                 // 추후 계정 타입에 따라 더하기/빼기 로직을 정교화 가능
                 $currentBalance += ($row['debitAmount'] - $row['creditAmount']);
-            ?>
+                ?>
             <tr>
                 <td><?= htmlspecialchars($row['transactionDate']) ?></td>
                 <td style="text-align: left;">
                     <small style="color: blue;"><?= htmlspecialchars($row['transactionNumber']) ?></small><br>
                     <?= htmlspecialchars($row['description']) ?>
-                    <?php if($row['itemName']): ?>
+                    <?php if ($row['itemName']) { ?>
                         <br><span style="font-size: 11px; color: green;">[<?= htmlspecialchars($row['itemName']) ?>: <?= htmlspecialchars($row['itemValue']) ?>]</span>
-                    <?php endif; ?>
+                    <?php } ?>
                 </td>
                 <td class="amt"><?= $row['debitAmount'] > 0 ? number_format($row['debitAmount'] ?? 0) : '-' ?></td>
                 <td class="amt"><?= $row['creditAmount'] > 0 ? number_format($row['creditAmount'] ?? 0) : '-' ?></td>
                 <td class="amt balance-col"><?= number_format($currentBalance ?? 0) ?></td>
             </tr>
-            <?php endforeach; ?>
+            <?php } ?>
         </tbody>
     </table>
 
-<?php elseif ($isSearch): ?>
+<?php } elseif ($isSearch) { ?>
     <p style="padding: 20px; text-align: center;">조회된 내역이 없습니다.</p>
-<?php else: ?>
+<?php } else { ?>
     <p style="padding: 20px; text-align: center; color: #666;">계정과 기간을 선택하여 조회하세요.</p>
-<?php endif; ?>            
+<?php } ?>            
